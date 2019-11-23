@@ -19,14 +19,22 @@ const (
 const (
 	PREPARE_SUCCESS PrepareResult = iota
 	PREPARE_UNRECOGNIZED_COMMAND
+	PREPARE_SYNTAX_ERROR
 )
 const (
 	STATEMENT_INSERT StatementType = iota
 	STATEMENT_SELECT
 )
 
+type Row struct {
+	id       int
+	username string
+	email    string
+}
+
 type Statement struct {
-	stype StatementType
+	stype       StatementType
+	rowToInsert Row
 }
 
 func main() {
@@ -77,11 +85,17 @@ func doMetaCommand(input string) MetaCommandResult {
 func prepareStatement(input string) (PrepareResult, Statement) {
 	// Both insert and select will have more items afterwards and will need to be parsed accordingly
 	var statement Statement
-	if input == "insert" {
+	var command string
+	fmt.Sscanf(input, "%s", &command)
+	if command == "insert" {
 		statement = Statement{stype: STATEMENT_INSERT}
+		args, _ := fmt.Sscanf(input, "insert %d %s %s", statement.rowToInsert.id, statement.rowToInsert.username, statement.rowToInsert.email)
+		if args < 3 {
+			return PREPARE_SYNTAX_ERROR, statement
+		}
 		return PREPARE_SUCCESS, statement
 	}
-	if input == "select" {
+	if command == "select" {
 		statement = Statement{stype: STATEMENT_SELECT}
 		return PREPARE_SUCCESS, statement
 	}
