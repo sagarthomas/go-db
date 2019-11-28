@@ -26,6 +26,7 @@ const (
 	STATEMENT_SELECT
 )
 
+
 type Row struct {
 	id       int
 	username string
@@ -111,3 +112,5 @@ func executeStatement(statement Statement) {
 		fmt.Println("This is where we do a select.")
 	}
 }
+
+
